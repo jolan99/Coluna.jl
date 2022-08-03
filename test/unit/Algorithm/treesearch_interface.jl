@@ -194,14 +194,14 @@ end
 # The diving is a tree search algorithm that uses:
 #  - `ComputeSolCostAti1` as conquer strategy
 #  - `DivideAti1` with parameter `create_both_branches` equals to `false` as divide strategy
-#  - `Coluna.Algorithm.DepthFirstExploreStrategy` as explore strategy
+#  - `Coluna.Algorithm.DepthFirstStrategy` as explore strategy
 @with_kw struct DivingAti1 <: ClA.AbstractAlgorithm
     conqueralg = ComputeSolCostAti1(log="compute solution cost of Diving tree")
     dividealg = DivideAti1(
         log = "divide for diving",
         create_both_branches = false
     )
-    explore = ClA.DepthFirstExploreStrategy()
+    explore = ClA.DepthFirstStrategy()
 end
 
 struct DivingInputAti1
@@ -211,7 +211,7 @@ end
 function ClA.run!(algo::DivingAti1, env, model::FormulationAti1, input::DivingInputAti1)
     LOG_ATI1 && println("~~~~~~~~ Diving starts ~~~~~~~~")
     diving_space = ClA.new_space(ClA.search_space_type(algo), algo, model, input)
-    output = ClA.tree_search(algo.explore, diving_space, env)
+    output = ClA.tree_search(algo.explore, diving_space, env, input)
     LOG_ATI1 && println("~~~~~~~~ end of Diving ~~~~~~~~")
     return output
 end
@@ -254,8 +254,8 @@ ClA.new_space(::Type{DivingSearchSpaceAti1}, alg, model, input) =
     DivingSearchSpaceAti1(model, input.starting_node_in_parent_algorithm, alg.conqueralg, alg.dividealg)
 
 # The definition of the root node depends on the search space.
-ClA.new_root(::BtSearchSpaceAti1) = NodeAti1()
-ClA.new_root(space::DivingSearchSpaceAti1) = 
+ClA.new_root(::BtSearchSpaceAti1, input) = NodeAti1()
+ClA.new_root(space::DivingSearchSpaceAti1, input) = 
     NodeAti1(space.starting_node_in_bt)
 
 # Then, we implement the method that converts the branching rules into nodes for the tree 
@@ -271,7 +271,7 @@ end
 
 # We implement the priority method for the `BestFirstSearch`` strategy.
 # The tree search algorithm will evaluate the node with highest priority.
-ClA.priority(::ClA.BestFirstSearch, node::NodeAti1) = -node.depth
+ClA.priority(::ClA.CustomBestFirstSearch, node::NodeAti1) = -node.depth
 
 # We implement the `node_change` method to update the search space when the tree search
 # just after the algorithm finishes to evaluate a node and chooses the next one.
@@ -326,7 +326,7 @@ ClA.tree_search_output(space::DivingSearchSpaceAti1) = space.cost_of_best_soluti
     treesearch = ClA.NewTreeSearchAlgorithm(
         conqueralg = BtConquerAti1(),
         dividealg = DivideAti1(),
-        explorestrategy = ClA.DepthFirstExploreStrategy()
+        explorestrategy = ClA.DepthFirstStrategy()
     )
 
     output = ClA.run!(treesearch, env, model, input)
@@ -335,7 +335,7 @@ ClA.tree_search_output(space::DivingSearchSpaceAti1) = space.cost_of_best_soluti
     treesearch = ClA.NewTreeSearchAlgorithm(
         conqueralg = BtConquerAti1(),
         dividealg = DivideAti1(),
-        explorestrategy = ClA.BestFirstSearch()
+        explorestrategy = ClA.CustomBestFirstSearch()
     )
     output = ClA.run!(treesearch, env, model, input)
     @test output == -1

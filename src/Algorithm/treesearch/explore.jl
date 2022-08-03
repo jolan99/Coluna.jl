@@ -1,8 +1,11 @@
-struct DepthFirstExploreStrategy <: AbstractExploreStrategy end
-struct BestFirstSearch <: AbstractExploreStrategy end
+struct DepthFirstStrategy <: AbstractExploreStrategy end
 
-function tree_search(::DepthFirstExploreStrategy, space, env)
-    root_node = new_root(space)
+abstract type BestFirstSearch <: AbstractExploreStrategy end
+struct CustomBestFirstSearch <: BestFirstSearch end
+struct BestDualBoundStrategy <: AbstractExploreStrategy end
+
+function tree_search(::DepthFirstStrategy, space, env, input)
+    root_node = new_root(space, input)
     stack = Stack{typeof(root_node)}()
     push!(stack, root_node)
     while !isempty(stack) # and stopping criterion
@@ -14,8 +17,8 @@ function tree_search(::DepthFirstExploreStrategy, space, env)
     return tree_search_output(space)
 end
 
-function tree_search(strategy::BestFirstSearch, space, env)
-    root_node = new_root(space)
+function tree_search(strategy::BestFirstSearch, space, env, input)
+    root_node = new_root(space, input)
     pq = PriorityQueue{typeof(root_node), Float64}()
     enqueue!(pq, root_node, priority(strategy, root_node))
     while !isempty(pq) # and stopping criterion

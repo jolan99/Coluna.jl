@@ -24,7 +24,7 @@ function new_space(::Type{SearchSpaceType}, alg, model, input) where SearchSpace
 end
 
 "Creates and returns the root node of a search space."
-new_root(::AbstractSearchSpace) = nothing
+new_root(::AbstractSearchSpace, input) = nothing
 
 "Evaluate and generate children."
 function children(sp, n, env)
