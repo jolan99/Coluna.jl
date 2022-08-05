@@ -18,9 +18,9 @@ abstract type AbstractNode end
 search_space_type(::AbstractAlgorithm) = nothing
 
 "Creates and returns the search space of a tree search algorithm, its model, and its input."
-function new_space(::Type{SearchSpaceType}, alg, model, input) where SearchSpaceType <: AbstractSearchSpace
-  @warn "new_space(::Type{$SearchSpaceType}, ::$(typeof(alg)), ::$(typeof(model)), ::$(typeof(input))) not implemented."
-  return nothing
+function new_space(::Type{SearchSpaceType}, alg, model, input) where {SearchSpaceType<:AbstractSearchSpace}
+    @warn "new_space(::Type{$SearchSpaceType}, ::$(typeof(alg)), ::$(typeof(model)), ::$(typeof(input))) not implemented."
+    return nothing
 end
 
 "Creates and returns the root node of a search space."
@@ -28,8 +28,8 @@ new_root(::AbstractSearchSpace, input) = nothing
 
 "Evaluate and generate children."
 function children(sp, n, env)
-  @warn "children(::$(typeof(sp)), ::$(typeof(n)), ::$(typeof(env))) not implemented."
-  return nothing
+    @warn "children(::$(typeof(sp)), ::$(typeof(n)), ::$(typeof(env))) not implemented."
+    return nothing
 end
 
 "Returns the root node of the tree to which the node belongs."
@@ -56,20 +56,20 @@ set_previous!(s::AbstractColunaSearchSpace, previous) = nothing
 
 "Returns the conquer algorithm."
 function get_conquer(sp::AbstractColunaSearchSpace)
-  @warn "get_conquer(::$(typeof(sp))) not implemented."
-  return nothing
+    @warn "get_conquer(::$(typeof(sp))) not implemented."
+    return nothing
 end
 
 "Returns the divide algorithm."
 function get_divide(sp::AbstractColunaSearchSpace)
-  @warn "get_divide(::$(typeof(sp))) not implemented."
-  return nothing
+    @warn "get_divide(::$(typeof(sp))) not implemented."
+    return nothing
 end
 
 "Returns the reformulation that will be passed to an algorithm."
 function get_reformulation(s::AbstractColunaSearchSpace)
-  @warn "get_reformulation(::$(typeof(s))) not implemented."
-  return nothing
+    @warn "get_reformulation(::$(typeof(s))) not implemented."
+    return nothing
 end
 
 """
@@ -77,8 +77,8 @@ Returns the input that will be passed to an algorithm.
 The input can be built from information contained in a search space and a node.
 """
 function get_input(a::AbstractAlgorithm, s::AbstractColunaSearchSpace, n::AbstractNode)
-  @warn "get_input(::$(typeof(a)), ::$(typeof(s)), ::$(typeof(n))) not implemented."
-  return nothing
+    @warn "get_input(::$(typeof(a)), ::$(typeof(s)), ::$(typeof(n))) not implemented."
+    return nothing
 end
 
 """
@@ -86,8 +86,8 @@ Methods to perform operations before the tree search algorithm evaluates a node 
 This is useful to restore the state of the formulation for instance.
 """
 function node_change!(previous::AbstractNode, current::AbstractNode, space::AbstractColunaSearchSpace)
-  @warn "node_change!(::$(typeof(previous)), $(typeof(current)), $(typeof(space))) not implemented."
-  return nothing
+    @warn "node_change!(::$(typeof(previous)), $(typeof(current)), $(typeof(space))) not implemented."
+    return nothing
 end
 
 """
@@ -98,27 +98,27 @@ after_conquer!(::AbstractColunaSearchSpace, output) = nothing
 
 "Creates and returns the children of a node associated to a search space."
 function new_children(sp::AbstractColunaSearchSpace, candidates, n::AbstractNode)
-  @warn "new_children(::$(typeof(sp)), ::$(typeof(candidates)), ::$(typeof(n))) not implemented."
-  return nothing
+    @warn "new_children(::$(typeof(sp)), ::$(typeof(candidates)), ::$(typeof(n))) not implemented."
+    return nothing
 end
 
 # Implementation of the `children` method for the `AbstractColunaSearchSpace` algorithm.
 function children(space::AbstractColunaSearchSpace, current::AbstractNode, env)
-  # restore state of the formulation for the current node.
-  previous = get_previous(space)
-  if !isnothing(previous)
-      node_change!(previous, current, space)
-  end
-  set_previous!(space, current)
-  # run the conquer algorithm.
-  reform = get_reformulation(space)
-  conquer_alg = get_conquer(space)
-  conquer_input = get_input(conquer_alg, space, current)
-  conquer_output = run!(conquer_alg, env, reform, conquer_input)
-  after_conquer!(space, conquer_output) # callback to do some operations after the conquer.
-  # run the divide algorithm.
-  divide_alg = get_divide(space)
-  divide_input = get_input(divide_alg, space, current)
-  branches = run!(divide_alg, env, reform, divide_input)
-  return new_children(space, branches, current)
+    # restore state of the formulation for the current node.
+    previous = get_previous(space)
+    if !isnothing(previous)
+        node_change!(previous, current, space)
+    end
+    set_previous!(space, current)
+    # run the conquer algorithm.
+    reform = get_reformulation(space)
+    conquer_alg = get_conquer(space)
+    conquer_input = get_input(conquer_alg, space, current)
+    conquer_output = run!(conquer_alg, env, reform, conquer_input)
+    after_conquer!(space, conquer_output) # callback to do some operations after the conquer.
+    # run the divide algorithm.
+    divide_alg = get_divide(space)
+    divide_input = get_input(divide_alg, space, current)
+    branches = run!(divide_alg, env, reform, divide_input)
+    return new_children(space, branches, current)
 end

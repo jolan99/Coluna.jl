@@ -43,7 +43,7 @@ priority(::AbstractExploreStrategy, ::Node) = error("todo")
 priority(::DepthFirstStrategy, n::Node) = -n.depth
 priority(::BestDualBoundStrategy, n::Node) = get_ip_dual_bound(n.optstate)
 
-struct TreeSearchSpace <: AbstractColunaSearchSpace
+mutable struct TreeSearchSpace <: AbstractColunaSearchSpace
     reformulation::Reformulation
     conquer::AbstractConquerAlgorithm
     divide::AbstractDivideAlgorithm
@@ -61,7 +61,7 @@ get_reformulation(sp::TreeSearchSpace) = sp.reformulation
 get_conquer(sp::TreeSearchSpace) = sp.conquer
 get_divide(sp::TreeSearchSpace) = sp.divide
 get_previous(sp::TreeSearchSpace) = sp.previous
-set_previous!(sp::TreeSearchAlgorithm, previous::Node) = sp.previous = previous
+set_previous!(sp::TreeSearchSpace, previous::Node) = sp.previous = previous
 
 search_space_type(::TreeSearchAlgorithm) = TreeSearchSpace
 
@@ -127,7 +127,16 @@ function new_children(sp::AbstractColunaSearchSpace, candidates, node::Node)
     return Node.(candidates.children)
 end
 
-
+function node_change!(previous::Node, current::Node, space::TreeSearchSpace)
+    println("\e[45m node change ! \e[00m")
+    #updatedualbound!(space.optstate, reform) # this method needs to be reimplemented.
+    remove_records!(previous.recordids)
+    # we delete solutions from the node optimization state, as they are not needed anymore
+    nodestate = getoptstate(previous)
+    empty_ip_primal_sols!(nodestate)
+    empty_lp_primal_sols!(nodestate)
+    empty_lp_dual_sols!(nodestate)
+end
 
 # """
 #     SearchTree
@@ -341,7 +350,7 @@ end
 #     return
 # end
 
-# function updatedualbound!(data::TreeSearchRuntimeData, reform::Reformulation)
+# function updatedualbound!(data::TreeSearchSpace, reform::Reformulation)
 #     treestate = getoptstate(data)
 #     worst_bound = DualBound(reform, getvalue(get_ip_primal_bound(treestate)))
 #     for (node, _) in getnodes(data.primary_tree)

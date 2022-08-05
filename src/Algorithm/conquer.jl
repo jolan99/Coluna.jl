@@ -201,7 +201,7 @@ function run!(algo::ColCutGenConquer, env::Env, reform::Reformulation, input::Co
         return 
     end
 
-    @show getmaster(reform)
+    #@show getmaster(reform)
 
     nb_cut_rounds = 0
     stop_conquer = false
