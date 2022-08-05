@@ -1,5 +1,5 @@
 @testset "Generalized Assignment" begin
-    @testset "toy instance" begin
+    @testset "toy instance 1" begin
         data = ClD.GeneralizedAssignment.data("play2.txt")
 
         coluna = JuMP.optimizer_with_attributes(
@@ -26,9 +26,15 @@
     @testset "small instance" begin
         data = ClD.GeneralizedAssignment.data("smallgap3.txt")
 
+        # coluna_solver = ClA.TreeSearchAlgorithm(
+        #     dividealg = ClA.NewSimpleBranching()
+        # )
+
+        coluna_solver = ClA.BranchCutAndPriceAlgorithm()
+
         coluna = JuMP.optimizer_with_attributes(
             Coluna.Optimizer,
-            "params" => CL.Params(solver = ClA.BranchCutAndPriceAlgorithm()),
+            "params" => CL.Params(solver = coluna_solver),
             "default_optimizer" => GLPK.Optimizer
         )
 

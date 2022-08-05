@@ -107,7 +107,7 @@ function after_conquer!(space::TreeSearchSpace, output)
     println("\e[34m after conquer ! \e[00m")
     @show output
     println("\e[1;31m----------\e[00m")
-    #store_records!(space.reformulation)
+    store_records!(space.reformulation)
 end
 
 # Conquer
@@ -119,9 +119,12 @@ function get_input(::AbstractDivideAlgorithm, space::TreeSearchSpace, node::Node
     return DivideInput(node, space.optstate)
 end
 
-function new_children(sp::AbstractColunaSearchSpace, candidates, n::Node)
+function new_children(sp::AbstractColunaSearchSpace, candidates, node::Node)
     println("\e[31m new children \e[00m")
-    @show candidates
+    map(candidates.children) do child
+        println("--- $(child.branchdescription)")
+    end
+    return Node.(candidates.children)
 end
 
 

@@ -48,6 +48,7 @@ include("branching/branchinggroup.jl")
 include("branching/branchingrule.jl")
 include("branching/varbranching.jl")
 include("branching/branchingalgo.jl")
+include("branching/simplebranching.jl")
 
 include("treesearch.jl")
 include("branchcutprice.jl")
